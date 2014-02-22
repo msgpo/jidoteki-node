@@ -15,10 +15,10 @@ armrest   = require 'armrest'
 jido = exports ? this
 
 jido.settings   =
-  endpoint:   'https://api.beta.jidoteki.com'
+  endpoint:   'https://api.jidoteki.com'
   userid:     process.env.JIDOTEKI_USERID || 'change me'
   apikey:     process.env.JIDOTEKI_APIKEY || 'change me'
-  useragent:  'nodeclient-jidoteki/0.1.0'
+  useragent:  'nodeclient-jidoteki/0.1.1'
   token:      null
 
 jido.api        = armrest.client jido.settings.endpoint
@@ -37,9 +37,10 @@ module.exports.getToken = (callback) =>
         'X-Auth-Signature': signature
         'User-Agent': jido.settings.useragent
         'Accept-Version': 1
+        'Content-Type': 'application/json'
       complete: (err, res, data) ->
-        if data.success
-          jido.settings.token = data.success.content
+        if data.status is 'success'
+          jido.settings.token = data.content
           setTimeout ->
             jido.settings.token = null
           , 27000000 # Expire the token after 7.5 hours
@@ -56,7 +57,7 @@ module.exports.getData = (type, resource, callback) =>
         'Accept-Version': 1
       complete: (err, res, data) ->
         if err
-          jido.settings.token = null if data.error and data.error.message is 'Unable to authenticate'
+          jido.settings.token = null if data.status is 'error' and data.message is 'Unable to authenticate'
         callback data
 
 module.exports.makeRequest = (type, resource, callback) =>
