@@ -1,10 +1,10 @@
 # Description:
 #   Build virtual appliances using Jidoteki
-#   http://jidoteki.com
+#   https://jidoteki.com
 #   Copyright (c) 2013 Alex Williams, Unscramble <license@unscramble.jp>
 
 ###
- * Jidoteki - http://jidoteki.com
+ * Jidoteki - https://jidoteki.com
  * Build virtual appliances using Jidoteki
  * Copyright (c) 2013 Alex Williams, Unscramble <license@unscramble.jp>
 ###

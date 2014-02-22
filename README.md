@@ -4,7 +4,7 @@ http://docs.jidoteki.com
 
 ## Version
 
-Currently at version `0.1.1`
+Currently at version `0.1.2`
 
 ## Installation
 
@@ -14,7 +14,7 @@ Currently at version `0.1.1`
 
 First, make sure you have your `USERID` and `APIKEY` for using the jidoteki.com API.
 
-If you don't have one, you can signup for free here: [Jidoteki.com](http://jidoteki.com)
+If you don't have one, you can signup for free here: [Jidoteki.com](https://jidoteki.com)
 
 ### Node.JS
 

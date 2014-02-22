@@ -1,3 +1,8 @@
+2014-02-22 Version 0.1.2
+
+    * update to Armrest 2.2.0
+    * update requirement for CoffeeScript 1.7.1
+
 2013-12-03 Version 0.1.1
 
     * update jidoteki-client user agent to: 0.1.1
