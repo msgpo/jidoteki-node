@@ -18,7 +18,7 @@ jido.settings   =
   endpoint:   'https://api.jidoteki.com'
   userid:     process.env.JIDOTEKI_USERID || 'change me'
   apikey:     process.env.JIDOTEKI_APIKEY || 'change me'
-  useragent:  'nodeclient-jidoteki/0.1.1'
+  useragent:  'nodeclient-jidoteki/0.1.3'
   token:      null
 
 jido.api        = armrest.client jido.settings.endpoint
@@ -46,8 +46,8 @@ module.exports.getToken = (callback) =>
           , 27000000 # Expire the token after 7.5 hours
         callback data
 
-module.exports.getData = (type, resource, callback) =>
-  @makeHMAC "#{type.toUpperCase()}#{jido.settings.endpoint}#{resource}", (signature) ->
+module.exports.getData = (resource, callback) =>
+  @makeHMAC "GET#{jido.settings.endpoint}#{resource}", (signature) ->
     jido.api.get
       url: resource
       headers:
@@ -60,11 +60,38 @@ module.exports.getData = (type, resource, callback) =>
           jido.settings.token = null if data.status is 'error' and data.message is 'Unable to authenticate'
         callback data
 
-module.exports.makeRequest = (type, resource, callback) =>
+module.exports.postData = (resource, string, callback) =>
+  @makeHMAC "POST#{jido.settings.endpoint}#{resource}#{JSON.stringify(string)}", (signature) ->
+    jido.api.post
+      url: resource
+      params: string
+      headers:
+        'X-Auth-Token': jido.settings.token
+        'X-Auth-Signature': signature
+        'User-Agent': jido.settings.useragent
+        'Accept-Version': 1
+        'Content-Type': 'application/json'
+      complete: (err, res, data) ->
+        if err
+          jido.settings.token = null if data.status is 'error' and data.message is 'Unable to authenticate'
+        callback data
+
+module.exports.makeRequest = (type, resource, string..., callback) =>
+  newType = type.toUpperCase()
   if jido.settings.token isnt null
-    @getData type, resource, (data) ->
-      callback data
+    switch newType
+      when "GET"
+        @getData resource, (data) ->
+          callback data
+      when "POST"
+        @postData resource, string[0], (data) ->
+          callback data
   else
     @getToken (result) ->
-      jido.getData type, resource, (data) ->
-        callback data
+      switch newType
+        when "GET"
+          jido.getData resource, (data) ->
+            callback data
+        when "POST"
+          jido.postData resource, string[0], (data) ->
+            callback data

@@ -4,7 +4,7 @@ http://docs.jidoteki.com
 
 ## Version
 
-Currently at version `0.1.2`
+Currently at version `0.1.3`
 
 ## Installation
 
