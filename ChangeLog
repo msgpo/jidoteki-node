@@ -1,3 +1,8 @@
+2014-02-24 Version 0.1.4
+
+    * use exports instead of module.exports
+    * update License year to 2014
+
 2014-02-23 Version 0.1.3
 
     * add the ability to send POST requests with data

@@ -1,12 +1,12 @@
 # Description:
 #   Build virtual appliances using Jidoteki
 #   https://jidoteki.com
-#   Copyright (c) 2013 Alex Williams, Unscramble <license@unscramble.jp>
+#   Copyright (c) 2014 Alex Williams, Unscramble <license@unscramble.jp>
 
 ###
  * Jidoteki - https://jidoteki.com
  * Build virtual appliances using Jidoteki
- * Copyright (c) 2013 Alex Williams, Unscramble <license@unscramble.jp>
+ * Copyright (c) 2014 Alex Williams, Unscramble <license@unscramble.jp>
 ###
 
 crypto    = require 'crypto'
@@ -18,16 +18,16 @@ jido.settings   =
   endpoint:   'https://api.jidoteki.com'
   userid:     process.env.JIDOTEKI_USERID || 'change me'
   apikey:     process.env.JIDOTEKI_APIKEY || 'change me'
-  useragent:  'nodeclient-jidoteki/0.1.3'
+  useragent:  'nodeclient-jidoteki/0.1.4'
   token:      null
 
 jido.api        = armrest.client jido.settings.endpoint
 
-module.exports.makeHMAC = (string, callback) =>
+exports.makeHMAC = (string, callback) =>
   hmac = crypto.createHmac('sha256', jido.settings.apikey).update(string).digest 'hex'
   callback(hmac)
 
-module.exports.getToken = (callback) =>
+exports.getToken = (callback) =>
   resource = '/auth/user'
   @makeHMAC "POST#{jido.settings.endpoint}#{resource}", (signature) ->
     jido.api.post
@@ -46,7 +46,7 @@ module.exports.getToken = (callback) =>
           , 27000000 # Expire the token after 7.5 hours
         callback data
 
-module.exports.getData = (resource, callback) =>
+exports.getData = (resource, callback) =>
   @makeHMAC "GET#{jido.settings.endpoint}#{resource}", (signature) ->
     jido.api.get
       url: resource
@@ -60,7 +60,7 @@ module.exports.getData = (resource, callback) =>
           jido.settings.token = null if data.status is 'error' and data.message is 'Unable to authenticate'
         callback data
 
-module.exports.postData = (resource, string, callback) =>
+exports.postData = (resource, string, callback) =>
   @makeHMAC "POST#{jido.settings.endpoint}#{resource}#{JSON.stringify(string)}", (signature) ->
     jido.api.post
       url: resource
@@ -76,7 +76,7 @@ module.exports.postData = (resource, string, callback) =>
           jido.settings.token = null if data.status is 'error' and data.message is 'Unable to authenticate'
         callback data
 
-module.exports.makeRequest = (type, resource, string..., callback) =>
+exports.makeRequest = (type, resource, string..., callback) =>
   newType = type.toUpperCase()
   if jido.settings.token isnt null
     switch newType
