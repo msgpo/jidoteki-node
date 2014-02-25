@@ -12,86 +12,88 @@
 crypto    = require 'crypto'
 armrest   = require 'armrest'
 
-jido = exports ? this
-
-jido.settings   =
+settings  =
   endpoint:   'https://api.jidoteki.com'
   userid:     process.env.JIDOTEKI_USERID || 'change me'
   apikey:     process.env.JIDOTEKI_APIKEY || 'change me'
-  useragent:  'nodeclient-jidoteki/0.1.4'
+  useragent:  'nodeclient-jidoteki/0.1.5'
   token:      null
 
-jido.api        = armrest.client jido.settings.endpoint
+api       = armrest.client settings.endpoint
 
-exports.makeHMAC = (string, callback) =>
-  hmac = crypto.createHmac('sha256', jido.settings.apikey).update(string).digest 'hex'
-  callback(hmac)
+exports.settings = settings
 
-exports.getToken = (callback) =>
+exports.makeHMAC = (string, callback) ->
+  callback crypto
+    .createHmac('sha256', settings.apikey)
+    .update(string)
+    .digest 'hex'
+
+exports.getToken = (callback) ->
   resource = '/auth/user'
-  @makeHMAC "POST#{jido.settings.endpoint}#{resource}", (signature) ->
-    jido.api.post
+  this.makeHMAC "POST#{settings.endpoint}#{resource}", (signature) ->
+    api.post
       url: resource
       headers:
-        'X-Auth-Uid': jido.settings.userid
+        'X-Auth-Uid': settings.userid
         'X-Auth-Signature': signature
-        'User-Agent': jido.settings.useragent
+        'User-Agent': settings.useragent
         'Accept-Version': 1
         'Content-Type': 'application/json'
       complete: (err, res, data) ->
         if data.status is 'success'
-          jido.settings.token = data.content
+          settings.token = data.content
           setTimeout ->
-            jido.settings.token = null
+            settings.token = null
           , 27000000 # Expire the token after 7.5 hours
         callback data
 
-exports.getData = (resource, callback) =>
-  @makeHMAC "GET#{jido.settings.endpoint}#{resource}", (signature) ->
-    jido.api.get
+exports.getData = (resource, callback) ->
+  this.makeHMAC "GET#{settings.endpoint}#{resource}", (signature) ->
+    api.get
       url: resource
       headers:
-        'X-Auth-Token': jido.settings.token
+        'X-Auth-Token': settings.token
         'X-Auth-Signature': signature
-        'User-Agent': jido.settings.useragent
+        'User-Agent': settings.useragent
         'Accept-Version': 1
       complete: (err, res, data) ->
         if err
-          jido.settings.token = null if data.status is 'error' and data.message is 'Unable to authenticate'
+          settings.token = null if data.status is 'error' and data.message is 'Unable to authenticate'
         callback data
 
-exports.postData = (resource, string, callback) =>
-  @makeHMAC "POST#{jido.settings.endpoint}#{resource}#{JSON.stringify(string)}", (signature) ->
-    jido.api.post
+exports.postData = (resource, string, callback) ->
+  this.makeHMAC "POST#{settings.endpoint}#{resource}#{JSON.stringify(string)}", (signature) ->
+    console.log string
+    api.post
       url: resource
       params: string
       headers:
-        'X-Auth-Token': jido.settings.token
+        'X-Auth-Token': settings.token
         'X-Auth-Signature': signature
-        'User-Agent': jido.settings.useragent
+        'User-Agent': settings.useragent
         'Accept-Version': 1
         'Content-Type': 'application/json'
       complete: (err, res, data) ->
         if err
-          jido.settings.token = null if data.status is 'error' and data.message is 'Unable to authenticate'
+          settings.token = null if data.status is 'error' and data.message is 'Unable to authenticate'
         callback data
 
-exports.makeRequest = (type, resource, string..., callback) =>
-  newType = type.toUpperCase()
-  if jido.settings.token isnt null
-    switch newType
+exports.makeRequest = (requestMethod, resource, string..., callback) =>
+  method = requestMethod.toUpperCase()
+
+  apiCall = =>
+    switch method
       when "GET"
-        @getData resource, (data) ->
-          callback data
+        this.getData resource, (result) -> callback result
       when "POST"
-        @postData resource, string[0], (data) ->
-          callback data
+        this.postData resource, string[0], (result) -> callback result
+
+  if settings.token?
+    apiCall()
   else
-    @getToken (result) ->
-      switch newType
-        when "GET"
-          jido.getData resource, (data) ->
-            callback data
-        when "POST"
-          jido.postData resource, string[0], (data) ->
-            callback data
+    this.getToken (result) =>
+      if result.status is 'success'
+        apiCall()
+      else
+        callback result
