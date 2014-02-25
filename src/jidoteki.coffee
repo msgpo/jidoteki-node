@@ -16,7 +16,7 @@ settings  =
   endpoint:   'https://api.jidoteki.com'
   userid:     process.env.JIDOTEKI_USERID || 'change me'
   apikey:     process.env.JIDOTEKI_APIKEY || 'change me'
-  useragent:  'nodeclient-jidoteki/0.1.5'
+  useragent:  'nodeclient-jidoteki/0.1.6'
   token:      null
 
 api       = armrest.client settings.endpoint
@@ -64,7 +64,6 @@ exports.getData = (resource, callback) ->
 
 exports.postData = (resource, string, callback) ->
   this.makeHMAC "POST#{settings.endpoint}#{resource}#{JSON.stringify(string)}", (signature) ->
-    console.log string
     api.post
       url: resource
       params: string
