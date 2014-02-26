@@ -13,10 +13,10 @@ crypto    = require 'crypto'
 armrest   = require 'armrest'
 
 settings  =
-  endpoint:   'https://api.jidoteki.com'
-  userid:     process.env.JIDOTEKI_USERID || 'change me'
-  apikey:     process.env.JIDOTEKI_APIKEY || 'change me'
-  useragent:  'nodeclient-jidoteki/0.1.6'
+  endpoint:   process.env.JIDOTEKI_ENDPOINT || 'https://api.jidoteki.com'
+  userid:     process.env.JIDOTEKI_USERID   || 'change me'
+  apikey:     process.env.JIDOTEKI_APIKEY   || 'change me'
+  useragent:  'nodeclient-jidoteki/0.1.7'
   token:      null
 
 api       = armrest.client settings.endpoint
@@ -41,12 +41,14 @@ exports.getToken = (callback) ->
         'Accept-Version': 1
         'Content-Type': 'application/json'
       complete: (err, res, data) ->
-        if data.status is 'success'
+        if err
+          callback err
+        else if data.status is 'success'
           settings.token = data.content
           setTimeout ->
             settings.token = null
           , 27000000 # Expire the token after 7.5 hours
-        callback data
+          callback data
 
 exports.getData = (resource, callback) ->
   this.makeHMAC "GET#{settings.endpoint}#{resource}", (signature) ->
@@ -60,7 +62,9 @@ exports.getData = (resource, callback) ->
       complete: (err, res, data) ->
         if err
           settings.token = null if data.status is 'error' and data.message is 'Unable to authenticate'
-        callback data
+          callback err
+        else
+          callback data
 
 exports.postData = (resource, string, callback) ->
   this.makeHMAC "POST#{settings.endpoint}#{resource}#{JSON.stringify(string)}", (signature) ->
@@ -76,7 +80,9 @@ exports.postData = (resource, string, callback) ->
       complete: (err, res, data) ->
         if err
           settings.token = null if data.status is 'error' and data.message is 'Unable to authenticate'
-        callback data
+          callback err
+        else
+          callback data
 
 exports.makeRequest = (requestMethod, resource, string..., callback) =>
   method = requestMethod.toUpperCase()

@@ -1,3 +1,8 @@
+2014-02-26 Version 0.1.7
+
+    * add environment variable JIDOTEKI_ENDPOINT for API endpoint
+    * bug fix: crash on authentication error
+
 2014-02-25 Version 0.1.6
 
     * remove extra console.log output used for debugging
