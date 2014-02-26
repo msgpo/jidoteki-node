@@ -16,7 +16,7 @@ settings  =
   endpoint:   process.env.JIDOTEKI_ENDPOINT || 'https://api.jidoteki.com'
   userid:     process.env.JIDOTEKI_USERID   || 'change me'
   apikey:     process.env.JIDOTEKI_APIKEY   || 'change me'
-  useragent:  'nodeclient-jidoteki/0.1.7'
+  useragent:  'nodeclient-jidoteki/0.1.8'
   token:      null
 
 api       = armrest.client settings.endpoint
@@ -45,9 +45,6 @@ exports.getToken = (callback) ->
           callback err
         else if data.status is 'success'
           settings.token = data.content
-          setTimeout ->
-            settings.token = null
-          , 27000000 # Expire the token after 7.5 hours
           callback data
 
 exports.getData = (resource, callback) ->
@@ -61,7 +58,6 @@ exports.getData = (resource, callback) ->
         'Accept-Version': 1
       complete: (err, res, data) ->
         if err
-          settings.token = null if data.status is 'error' and data.message is 'Unable to authenticate'
           callback err
         else
           callback data
@@ -79,26 +75,39 @@ exports.postData = (resource, string, callback) ->
         'Content-Type': 'application/json'
       complete: (err, res, data) ->
         if err
-          settings.token = null if data.status is 'error' and data.message is 'Unable to authenticate'
           callback err
         else
           callback data
 
 exports.makeRequest = (requestMethod, resource, string..., callback) =>
   method = requestMethod.toUpperCase()
+  tries = 0
 
   apiCall = =>
     switch method
       when "GET"
-        this.getData resource, (result) -> callback result
+        this.getData resource, (result) ->
+          handleResult result
       when "POST"
-        this.postData resource, string[0], (result) -> callback result
+        this.postData resource, string[0], (result) ->
+          handleResult result
 
-  if settings.token?
-    apiCall()
-  else
+  handleResult = (result) ->
+    # If authentication error, try to get a new token (only once)
+    if result.status is 'error' and result.message is 'Unable to authenticate' and tries < 1
+      tries = 1
+      getNewToken result
+    else
+      callback result
+
+  getNewToken = (result) =>
     this.getToken (result) =>
       if result.status is 'success'
         apiCall()
       else
         callback result
+
+  if settings.token?
+    apiCall()
+  else
+    getNewToken()

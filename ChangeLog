@@ -1,3 +1,7 @@
+2014-02-26 Version 0.1.8
+
+    * Handled edge-cases with expired tokens, retry once if authentication fails
+
 2014-02-26 Version 0.1.7
 
     * add environment variable JIDOTEKI_ENDPOINT for API endpoint
