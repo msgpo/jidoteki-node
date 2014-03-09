@@ -1,5 +1,7 @@
 # Official Node.JS API client and helper library
 
+![Downloads](http://img.shields.io/npm/dm/jidoteki.svg "Jidoteki")
+
 http://docs.jidoteki.com
 
 ## Version
