@@ -48,5 +48,4 @@ jidoteki.makeRequest 'GET', '/os/list', (data) -> console.log data
 
 # Todo
 
-* Support PUT/POST/DELETE requests with `makeRequest()`
-* Support query and form data params
+* Support PUT/DELETE requests with `makeRequest()`
