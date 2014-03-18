@@ -13,10 +13,11 @@ crypto    = require 'crypto'
 armrest   = require 'armrest'
 
 settings  =
+  host:       'api.jidoteki.com'
   endpoint:   process.env.JIDOTEKI_ENDPOINT || 'https://api.jidoteki.com'
   userid:     process.env.JIDOTEKI_USERID   || 'change me'
   apikey:     process.env.JIDOTEKI_APIKEY   || 'change me'
-  useragent:  'nodeclient-jidoteki/0.1.8'
+  useragent:  'nodeclient-jidoteki/0.1.9'
   token:      null
 
 api       = armrest.client settings.endpoint
@@ -31,7 +32,7 @@ exports.makeHMAC = (string, callback) ->
 
 exports.getToken = (callback) ->
   resource = '/auth/user'
-  this.makeHMAC "POST#{settings.endpoint}#{resource}", (signature) ->
+  this.makeHMAC "POSThttps://#{settings.host}#{resource}", (signature) ->
     api.post
       url: resource
       headers:
@@ -40,6 +41,7 @@ exports.getToken = (callback) ->
         'User-Agent': settings.useragent
         'Accept-Version': 1
         'Content-Type': 'application/json'
+        'Host': settings.host
       complete: (err, res, data) ->
         if err
           callback err
@@ -48,7 +50,7 @@ exports.getToken = (callback) ->
           callback data
 
 exports.getData = (resource, callback) ->
-  this.makeHMAC "GET#{settings.endpoint}#{resource}", (signature) ->
+  this.makeHMAC "GEThttps://#{settings.host}#{resource}", (signature) ->
     api.get
       url: resource
       headers:
@@ -56,6 +58,7 @@ exports.getData = (resource, callback) ->
         'X-Auth-Signature': signature
         'User-Agent': settings.useragent
         'Accept-Version': 1
+        'Host': settings.host
       complete: (err, res, data) ->
         if err
           callback err
@@ -63,7 +66,7 @@ exports.getData = (resource, callback) ->
           callback data
 
 exports.postData = (resource, string, callback) ->
-  this.makeHMAC "POST#{settings.endpoint}#{resource}#{JSON.stringify(string)}", (signature) ->
+  this.makeHMAC "POSThttps://#{settings.host}#{resource}#{JSON.stringify(string)}", (signature) ->
     api.post
       url: resource
       params: string
@@ -73,6 +76,7 @@ exports.postData = (resource, string, callback) ->
         'User-Agent': settings.useragent
         'Accept-Version': 1
         'Content-Type': 'application/json'
+        'Host': settings.host
       complete: (err, res, data) ->
         if err
           callback err

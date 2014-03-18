@@ -1,3 +1,7 @@
+2014-03-18 Version 0.1.9
+
+    * Always specify https scheme and api host, but allow a different endpoint
+
 2014-02-26 Version 0.1.8
 
     * Handled edge-cases with expired tokens, retry once if authentication fails
