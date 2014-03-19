@@ -17,8 +17,9 @@ settings  =
   endpoint:   process.env.JIDOTEKI_ENDPOINT || 'https://api.jidoteki.com'
   userid:     process.env.JIDOTEKI_USERID   || 'change me'
   apikey:     process.env.JIDOTEKI_APIKEY   || 'change me'
-  useragent:  'nodeclient-jidoteki/0.1.10'
+  useragent:  'nodeclient-jidoteki/0.1.11'
   token:      null
+  logLevel:   process.env.JIDOTEKI_LOGLEVEL || 'info'
 
 api       = armrest.client settings.endpoint
 

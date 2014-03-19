@@ -1,3 +1,7 @@
+2014-03-20 Version 0.1.11
+
+    * add environment variable JIDOTEKI_LOGLEVEL for user configurable log level
+
 2014-03-19 Version 0.1.10
 
     * fix missing http scheme from .js file
