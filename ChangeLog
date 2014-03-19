@@ -1,3 +1,7 @@
+2014-03-19 Version 0.1.10
+
+    * fix missing http scheme from .js file
+
 2014-03-18 Version 0.1.9
 
     * Always specify https scheme and api host, but allow a different endpoint
