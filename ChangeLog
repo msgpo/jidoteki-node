@@ -1,3 +1,7 @@
+2014-07-14 Version 0.1.12
+
+    * API version is configurable
+
 2014-03-20 Version 0.1.11
 
     * add environment variable JIDOTEKI_LOGLEVEL for user configurable log level

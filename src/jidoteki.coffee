@@ -17,9 +17,10 @@ settings  =
   endpoint:   process.env.JIDOTEKI_ENDPOINT || 'https://api.jidoteki.com'
   userid:     process.env.JIDOTEKI_USERID   || 'change me'
   apikey:     process.env.JIDOTEKI_APIKEY   || 'change me'
-  useragent:  'nodeclient-jidoteki/0.1.11'
+  useragent:  'nodeclient-jidoteki/0.1.12'
   token:      null
   logLevel:   process.env.JIDOTEKI_LOGLEVEL || 'info'
+  apiversion: process.env.JIDOTEKI_APIVERSION || 1
 
 api       = armrest.client settings.endpoint
 
@@ -40,7 +41,7 @@ exports.getToken = (callback) ->
         'X-Auth-Uid': settings.userid
         'X-Auth-Signature': signature
         'User-Agent': settings.useragent
-        'Accept-Version': 1
+        'Accept-Version': settings.apiversion
         'Content-Type': 'application/json'
         'Host': settings.host
       complete: (err, res, data) ->
@@ -58,7 +59,7 @@ exports.getData = (resource, callback) ->
         'X-Auth-Token': settings.token
         'X-Auth-Signature': signature
         'User-Agent': settings.useragent
-        'Accept-Version': 1
+        'Accept-Version': settings.apiversion
         'Host': settings.host
       complete: (err, res, data) ->
         if err
@@ -75,7 +76,7 @@ exports.postData = (resource, string, callback) ->
         'X-Auth-Token': settings.token
         'X-Auth-Signature': signature
         'User-Agent': settings.useragent
-        'Accept-Version': 1
+        'Accept-Version': settings.apiversion
         'Content-Type': 'application/json'
         'Host': settings.host
       complete: (err, res, data) ->
