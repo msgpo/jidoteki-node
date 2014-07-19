@@ -17,7 +17,7 @@ settings  =
   endpoint:   process.env.JIDOTEKI_ENDPOINT || 'https://api.jidoteki.com'
   userid:     process.env.JIDOTEKI_USERID   || 'change me'
   apikey:     process.env.JIDOTEKI_APIKEY   || 'change me'
-  useragent:  'nodeclient-jidoteki/0.1.12'
+  useragent:  'nodeclient-jidoteki/0.1.13'
   token:      null
   logLevel:   process.env.JIDOTEKI_LOGLEVEL || 'info'
   apiversion: process.env.JIDOTEKI_APIVERSION || 1
@@ -27,10 +27,7 @@ api       = armrest.client settings.endpoint
 exports.settings = settings
 
 exports.makeHMAC = (string, callback) ->
-  callback crypto
-    .createHmac('sha256', settings.apikey)
-    .update(string)
-    .digest 'hex'
+  callback crypto.createHmac('sha256', settings.apikey).update(string).digest 'hex'
 
 exports.getToken = (callback) ->
   resource = '/auth/user'
