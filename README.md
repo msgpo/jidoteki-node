@@ -1,12 +1,13 @@
 # Official Node.JS API client and helper library
 
 ![Downloads](http://img.shields.io/npm/dm/jidoteki.svg "Jidoteki")
+[![Build Status](https://travis-ci.org/unscramble/jidoteki-node.svg?branch=api-v2)](https://travis-ci.org/unscramble/jidoteki-node)
 
 http://docs.jidoteki.com
 
 ## Version
 
-Currently at version `0.1.13`
+Currently at version `0.2.0`
 
 ## Installation
 
@@ -29,7 +30,7 @@ jidoteki.settings.apikey = 'yourapikey'
 console.log(jidoteki.settings)
 
 // make a request!
-jidoteki.makeRequest('GET', '/os/list', function(data){ console.log(data); });
+jidoteki.makeRequest(1, 'GET', '/os/list', function(err, data){ console.log(data); });
 ```
 
 ### CoffeeScript
@@ -43,7 +44,7 @@ jidoteki.settings.apikey = 'yourapikey'
 console.log jidoteki.settings
 
 # make a request!
-jidoteki.makeRequest 'GET', '/os/list', (data) -> console.log data
+jidoteki.makeRequest 1, 'GET', '/os/list', (err, data) -> console.log data
 ```
 
 # Todo

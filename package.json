@@ -1,7 +1,7 @@
 {
   "author": "Alex Williams, Unscramble <license@unscramble.jp>",
   "name": "jidoteki",
-  "version": "0.1.13",
+  "version": "0.2.0",
   "description": "Official Jidoteki.com API client and helper library",
   "main": "lib/jidoteki.js",
   "private": false,
@@ -9,11 +9,25 @@
     "type": "git",
     "url": "https://github.com/unscramble/jidoteki-node.git"
   },
+  "scripts": {
+    "test": "node ./node_modules/mocha/bin/mocha -R spec --compilers coffee:coffee-script && node ./node_modules/mocha/bin/mocha -R html-cov -r blanket --compilers coffee:coffee-script > coverage.html",
+    "pretest": "coffee -c -o lib src/jidoteki.coffee"
+  },
+  "config": {
+    "blanket": {
+      "pattern": ["src/jidoteki"],
+      "loader": "./node-loaders/coffee-script"
+    }
+  },
   "dependencies": {
-    "armrest": "2.2.x"
+    "armrest": "4.2.x"
   },
   "devDependencies": {
-    "coffee-script": ">= 1.7.1"
+    "should": "~3.3.2",
+    "coffee-script": "~1.6.3",
+    "mocha": "*",
+    "debug": "~1.0.0",
+    "blanket": "~1.1.6"
   },
   "keywords": [
     "jidoteki",
@@ -23,6 +37,5 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/unscramble/jidoteki-node/issues"
-  },
-  "prepublish": "coffee -c -o lib src/jidoteki.coffee"
+  }
 }
