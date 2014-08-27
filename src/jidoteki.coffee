@@ -14,103 +14,115 @@ armrest   = require 'armrest'
 
 settings  =
   host:       'api.jidoteki.com'
-  endpoint:   process.env.JIDOTEKI_ENDPOINT || 'https://api.jidoteki.com'
-  userid:     process.env.JIDOTEKI_USERID   || 'change me'
-  apikey:     process.env.JIDOTEKI_APIKEY   || 'change me'
-  useragent:  'nodeclient-jidoteki/0.1.13'
+  endpoint:   process.env.JIDOTEKI_ENDPOINT   || 'https://api.jidoteki.com'
+  userid:     process.env.JIDOTEKI_USERID     || 'change me'
+  apikey:     process.env.JIDOTEKI_APIKEY     || 'change me'
+  logLevel:   process.env.JIDOTEKI_LOGLEVEL   || 'info'
+  useragent:  'nodeclient-jidoteki/0.2.0'
   token:      null
-  logLevel:   process.env.JIDOTEKI_LOGLEVEL || 'info'
-  apiversion: process.env.JIDOTEKI_APIVERSION || 1
+  tries:      0
 
-api       = armrest.client settings.endpoint
+api = armrest.client settings.endpoint
 
 exports.settings = settings
 
-exports.makeHMAC = (string, callback) ->
-  callback crypto.createHmac('sha256', settings.apikey).update(string).digest 'hex'
+exports.makeHMAC = (string) ->
+  return crypto.createHmac('sha256', settings.apikey)
+    .update(string)
+    .digest 'hex'
 
-exports.getToken = (callback) ->
-  resource = '/auth/user'
-  this.makeHMAC "POSThttps://#{settings.host}#{resource}", (signature) ->
-    api.post
-      url: resource
-      headers:
-        'X-Auth-Uid': settings.userid
+# Set the request headers depending on the type of request we're trying to make
+exports.getHeaders = (apiVersion, requestType, signature, callback) ->
+  switch requestType
+    when 'token'
+      callback null, {
+        'Accept-Version':   apiVersion
+        'Host':             settings.host
+        'User-Agent':       settings.useragent
+        'X-Auth-Uid':       settings.userid
         'X-Auth-Signature': signature
-        'User-Agent': settings.useragent
-        'Accept-Version': settings.apiversion
-        'Content-Type': 'application/json'
-        'Host': settings.host
-      complete: (err, res, data) ->
-        if err
-          callback err
-        else if data.status is 'success'
-          settings.token = data.content
-          callback data
-
-exports.getData = (resource, callback) ->
-  this.makeHMAC "GEThttps://#{settings.host}#{resource}", (signature) ->
-    api.get
-      url: resource
-      headers:
-        'X-Auth-Token': settings.token
+        'Content-Type':     'application/json'
+      }
+    when 'get'
+      callback null, {
+        'Accept-Version':   apiVersion
+        'Host':             settings.host
+        'User-Agent':       settings.useragent
+        'X-Auth-Token':     settings.token
         'X-Auth-Signature': signature
-        'User-Agent': settings.useragent
-        'Accept-Version': settings.apiversion
-        'Host': settings.host
-      complete: (err, res, data) ->
-        if err
-          callback err
-        else
-          callback data
-
-exports.postData = (resource, string, callback) ->
-  this.makeHMAC "POSThttps://#{settings.host}#{resource}#{JSON.stringify(string)}", (signature) ->
-    api.post
-      url: resource
-      params: string
-      headers:
-        'X-Auth-Token': settings.token
+      }
+    when 'post'
+      callback null, {
+        'Accept-Version':   apiVersion
+        'Host':             settings.host
+        'User-Agent':       settings.useragent
+        'X-Auth-Token':     settings.token
         'X-Auth-Signature': signature
-        'User-Agent': settings.useragent
-        'Accept-Version': settings.apiversion
-        'Content-Type': 'application/json'
-        'Host': settings.host
-      complete: (err, res, data) ->
-        if err
-          callback err
-        else
-          callback data
-
-exports.makeRequest = (requestMethod, resource, string..., callback) =>
-  method = requestMethod.toUpperCase()
-  tries = 0
-
-  apiCall = =>
-    switch method
-      when "GET"
-        this.getData resource, (result) ->
-          handleResult result
-      when "POST"
-        this.postData resource, string[0], (result) ->
-          handleResult result
-
-  handleResult = (result) ->
-    # If authentication error, try to get a new token (only once)
-    if result.status is 'error' and result.message is 'Unable to authenticate' and tries < 1
-      tries = 1
-      getNewToken result
+        'Content-Type':     'application/json'
+      }
     else
-      callback result
+      callback new Error "Invalid Request Type. Must be 'token', 'get' or 'post'"
 
-  getNewToken = (result) =>
-    this.getToken (result) =>
-      if result.status is 'success'
-        apiCall()
-      else
-        callback result
+# Obtains a session token from the APIv1
+exports.getToken = (callback) ->
+  signature = this.makeHMAC "POSThttps://#{settings.host}/auth/user"
+  this.getHeaders 1, 'token', signature, (error, result) ->
+    api.post
+      url: '/auth/user'
+      headers: result
+      complete: (err, data, res) ->
+        if err
+          settings.token = null
+          settings.tries = 1
+
+          return callback err
+        else
+          settings.token = res.content
+          settings.tries = 0
+
+          return callback null, res
+
+# Make an APIv1 or APIv2 GET or POST request
+exports.apiCall = (apiVersion, method, resource, string, callback) ->
+  switch method
+    when 'GET'
+      signature = this.makeHMAC "GEThttps://#{settings.host}#{resource}"
+      this.getHeaders apiVersion, 'get', signature, (error, result) ->
+        api.get
+          url: resource
+          headers: result
+          complete: (err, data, res) ->
+            if err then return callback err
+            return callback null, res
+
+    when 'POST'
+      signature = this.makeHMAC "POSThttps://#{settings.host}#{resource}#{JSON.stringify string}"
+      this.getHeaders apiVersion, 'post', signature, (error, result) ->
+        api.post
+          url: resource
+          headers: result
+          params: string
+          complete: (err, data, res) ->
+            if err then return callback err
+            return callback null, res
+
+    else
+      return callback new Error 'Invalid request method'
+
+exports.makeRequest = (apiVersion, requestMethod, resource, string, callback) ->
+  return callback new Error 'Unable to authenticate' if settings.tries >= 1
 
   if settings.token?
-    apiCall()
+    this.apiCall apiVersion, requestMethod.toUpperCase(), resource, string, (err, res) =>
+      if err
+        if err.status is 'error' and err.message is 'Unable to authenticate'
+          this.getToken (err, res) =>
+            this.makeRequest apiVersion, requestMethod, resource, string, callback
+        else
+          return callback err
+      else
+        return callback null, res
+
   else
-    getNewToken()
+    this.getToken (err, res) =>
+      this.makeRequest apiVersion, requestMethod, resource, string, callback
