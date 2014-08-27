@@ -1,3 +1,7 @@
+2014-08-27 Version 0.2.0
+
+    * Refactor and redesign Jidoteki node client
+
 2014-07-19 Version 0.1.13
 
     * Fix bug caused by improper formatting of 'crypto' call
