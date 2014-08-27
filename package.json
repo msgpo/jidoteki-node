@@ -11,11 +11,12 @@
   },
   "scripts": {
     "test": "node ./node_modules/mocha/bin/mocha -R spec --compilers coffee:coffee-script && node ./node_modules/mocha/bin/mocha -R html-cov -r blanket --compilers coffee:coffee-script > coverage.html",
-    "pretest": "coffee -c -o lib lib/jidoteki.js"
+    "pretest": "coffee -c -o lib src/jidoteki.coffee"
   },
   "config": {
     "blanket": {
-      "pattern": ["lib/jidoteki"]
+      "pattern": ["src/jidoteki"],
+      "loader": "./node-loaders/coffee-script"
     }
   },
   "dependencies": {
