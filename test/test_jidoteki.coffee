@@ -1,7 +1,7 @@
 # Tests the helpers
 
 assert    = require 'should'
-jidoteki  = require '../src/jidoteki'
+jidoteki  = require '../lib/jidoteki'
 
 describe 'Jidoteki.com API client ', ->
   describe '#Security', ->
