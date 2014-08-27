@@ -18,7 +18,7 @@ settings  =
   userid:     process.env.JIDOTEKI_USERID     || 'change me'
   apikey:     process.env.JIDOTEKI_APIKEY     || 'change me'
   logLevel:   process.env.JIDOTEKI_LOGLEVEL   || 'info'
-  useragent:  'nodeclient-jidoteki/0.2.0'
+  useragent:  'nodeclient-jidoteki/0.2.1'
   token:      null
   tries:      0
 
