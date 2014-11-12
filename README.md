@@ -1,13 +1,13 @@
 # Official Node.JS API client and helper library
 
 ![Downloads](http://img.shields.io/npm/dm/jidoteki.svg "Jidoteki")
-[![Build Status](https://travis-ci.org/unscramble/jidoteki-node.svg?branch=api-v2)](https://travis-ci.org/unscramble/jidoteki-node)
+[![Build Status](https://travis-ci.org/unscramble/jidoteki-node.svg?branch=master)](https://travis-ci.org/unscramble/jidoteki-node)
 
 http://docs.jidoteki.com
 
 ## Version
 
-Currently at version `0.2.1`
+Currently at version `0.2.2`
 
 ## Installation
 
