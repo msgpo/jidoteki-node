@@ -18,10 +18,9 @@ settings  =
   userid:     process.env.JIDOTEKI_USERID     || 'change me'
   apikey:     process.env.JIDOTEKI_APIKEY     || 'change me'
   logLevel:   process.env.JIDOTEKI_LOGLEVEL   || 'info'
-  useragent:  'nodeclient-jidoteki/0.2.2'
+  useragent:  'nodeclient-jidoteki/0.2.3'
   token:      null
   tries:      0
-  ipaddress:  ''
 
 api = armrest.client settings.endpoint
 
@@ -43,7 +42,6 @@ exports.getHeaders = (apiVersion, requestType, signature, callback) ->
         'X-Auth-Uid':       settings.userid
         'X-Auth-Signature': signature
         'Content-Type':     'application/json'
-        'X-Forwarded-For':  settings.ipaddress
       }
     when 'get'
       callback null, {
@@ -52,7 +50,6 @@ exports.getHeaders = (apiVersion, requestType, signature, callback) ->
         'User-Agent':       settings.useragent
         'X-Auth-Token':     settings.token
         'X-Auth-Signature': signature
-        'X-Forwarded-For':  settings.ipaddress
       }
     when 'post'
       callback null, {
@@ -62,7 +59,6 @@ exports.getHeaders = (apiVersion, requestType, signature, callback) ->
         'X-Auth-Token':     settings.token
         'X-Auth-Signature': signature
         'Content-Type':     'application/json'
-        'X-Forwarded-For':  settings.ipaddress
       }
     else
       callback new Error "Invalid Request Type. Must be 'token', 'get' or 'post'"

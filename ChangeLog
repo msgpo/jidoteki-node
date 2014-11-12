@@ -1,3 +1,7 @@
+2014-11-13 Version 0.2.3
+
+    * Revert allow the X-Forwarded-For IP to be set
+
 2014-11-13 Version 0.2.2
 
     * Allow the X-Forwarded-For IP to be set
