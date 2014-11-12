@@ -18,7 +18,7 @@ settings  =
   userid:     process.env.JIDOTEKI_USERID     || 'change me'
   apikey:     process.env.JIDOTEKI_APIKEY     || 'change me'
   logLevel:   process.env.JIDOTEKI_LOGLEVEL   || 'info'
-  useragent:  'nodeclient-jidoteki/0.2.3'
+  useragent:  'nodeclient-jidoteki/0.2.4'
   token:      null
   tries:      0
 
@@ -65,7 +65,7 @@ exports.getHeaders = (apiVersion, requestType, signature, callback) ->
 
 # Obtains a session token from the APIv1
 exports.getToken = (callback) ->
-  signature = this.makeHMAC "POST#{settings.endpoint}/auth/user"
+  signature = this.makeHMAC "POSThttps://#{settings.host}/auth/user"
   this.getHeaders 1, 'token', signature, (error, result) ->
     api.post
       url: '/auth/user'
@@ -86,7 +86,7 @@ exports.getToken = (callback) ->
 exports.apiCall = (apiVersion, method, resource, string, callback) ->
   switch method
     when 'GET'
-      signature = this.makeHMAC "GET#{settings.endpoint}#{resource}"
+      signature = this.makeHMAC "GEThttps://#{settings.host}#{resource}"
       this.getHeaders apiVersion, 'get', signature, (error, result) ->
         api.get
           url: resource
@@ -96,7 +96,7 @@ exports.apiCall = (apiVersion, method, resource, string, callback) ->
             return callback null, res
 
     when 'POST'
-      signature = this.makeHMAC "POST#{settings.endpoint}#{resource}#{JSON.stringify string}"
+      signature = this.makeHMAC "POSThttps://#{settings.host}#{resource}#{JSON.stringify string}"
       this.getHeaders apiVersion, 'post', signature, (error, result) ->
         api.post
           url: resource
